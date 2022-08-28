@@ -1,0 +1,15 @@
+.drop {
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  position: absolute;
+}
+
+.right {
+  left: 50%;
+}
+
+.dragOver {
+  background-color: rgb(113 146 221 / 50%);
+}

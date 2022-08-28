@@ -1,0 +1,31 @@
+.container {
+  background-color: black;
+  padding: 20px;
+  border: 1px solid white;
+  position: relative;
+  display: flex;
+  min-height: 120px;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 120px);
+  grid-auto-rows: 120px;
+  grid-gap: 5px;
+  width: 100%;
+}
+
+.item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.img {
+  min-width: 100%;
+}
+
+.title {
+  flex-shrink: 0;
+}
