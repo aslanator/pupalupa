@@ -22,7 +22,7 @@ const tableName = 'rating';
 const converter: FirestoreDataConverter<Rating> = {toFirestore: item => item, fromFirestore: item => {
   const data = item.data();
   return ({
-    username: data.user,
+    username: data.username,
     unrated: data.unrated ?? [],
     lupa: data.lupa ?? [],
     pupa: data.pupa ?? [],
@@ -61,6 +61,12 @@ export const subscribeOnRatingByUserName = (username: string) => {
   return {
     unsubscribe, rating
   }
+}
+
+export const getRatings = async () => {
+  const request = getRatingsCollection();
+  const ratings = await getDocs<Rating>(request);
+  return ratings.docs.map(rating => rating.data());
 }
 
 export const getRatingsByUsername = async (username: string) => {

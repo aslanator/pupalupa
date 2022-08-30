@@ -6,7 +6,6 @@ import { RatingContainer } from './components/RatingsContainer/RagingContainer';
 
 export const Rating: Component = () => {
  const user = getCurrentUser();
- const [gamesSynced, setGamesSynced] = createSignal(false);
  const [username, setUsername] = createSignal('');
 
  const params = useParams();

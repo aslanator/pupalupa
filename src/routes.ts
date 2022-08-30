@@ -7,6 +7,10 @@ export const basicRuleRoutes = [
     component: lazy(() => import("./pages/rating/Rating").then(module => ({ default: module.Rating })))
   },
   {
+    path: "/ratings",
+    component: lazy(() => import("./pages/rating-list/RatingList").then(module => ({ default: module.RatingList })))
+  },
+  {
     path: "/collections-manager",
     component: lazy(() => import("./pages/collections-manager/CollectionsManager").then(module => ({ default: module.CollectionsManager })))
   }
