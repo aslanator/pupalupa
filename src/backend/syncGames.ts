@@ -4,7 +4,7 @@ import { addToGames, Game, getGames } from "./game";
 import { addGameToRating as addGamesToRating, getRatingsByUsername } from "./rating";
 import { getCurrentUser } from "./user";
 
-const getGamesByUserName =  async (username: string) => {
+const getGamesByCollection =  async (username: string) => {
   const { data } = await bggXmlApiClient.get('collection', { username, excludesubtype: 'boardgameexpansion', own: 1});
 
   return data.item as Game[];
@@ -38,12 +38,12 @@ const getUserGamesSet = async () => {
   return userGamesSet;
 }
 
-const syncGamesByUserName = async (username: string) => {
+const syncGamesByCollection = async (username: string) => {
   const user = getCurrentUser();
   const existingGamesSet = await getExistsGamesSet();
   const userGamesSet = await getUserGamesSet();
   console.log({userGamesSet})
-  const games = await getGamesByUserName(username);
+  const games = await getGamesByCollection(username);
   const gamesAddToRaging = [];
   for(const game of games) {
     if(existingGamesSet.has(game.objectid) === false) {
@@ -59,9 +59,9 @@ const syncGamesByUserName = async (username: string) => {
   }
 }
 
-export const syncGames = async () => {
+export const syncGamesLibrary = async () => {
   const collections = await getCollections();
   for(const collection of collections) {
-    syncGamesByUserName(collection.username);
+    syncGamesByCollection(collection.username);
   }
 }

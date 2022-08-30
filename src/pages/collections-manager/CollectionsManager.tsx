@@ -4,7 +4,7 @@ import style from './CollectionsManager.module.css';
 import { AddToCollection } from './components/AddToCollection/AddToCollection';
 import { Collection } from './components/Collection/Collection';
 import { Button } from '../../ui/pupa-compnents/Button/Button';
-import { syncGames } from '../../backend/syncGames';
+import { syncGamesLibrary } from '../../backend/syncGames';
 
 export const CollectionsManager = () => {
   const { collections } = subscribeOnCollections();
@@ -15,6 +15,6 @@ export const CollectionsManager = () => {
       {(collection) => <Collection username={collection.username} />}
     </For>
     <AddToCollection />
-    <Button onClick={syncGames}>Sync games</Button>
+    <Button onClick={syncGamesLibrary}>Sync games</Button>
   </div>
 }

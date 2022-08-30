@@ -1,6 +1,6 @@
 import { useParams } from '@solidjs/router';
 import { Component, createEffect, createSignal, Show } from 'solid-js';
-import { syncGames } from '../../backend/syncGames';
+import { syncGamesLibrary } from '../../backend/syncGames';
 import { getCurrentUser } from '../../backend/user';
 import { RatingContainer } from './components/RatingsContainer/RagingContainer';
 
@@ -16,7 +16,7 @@ export const Rating: Component = () => {
     setUsername(params.username);
   }
   if(username) {
-    syncGames().then(() => {
+    syncGamesLibrary().then(() => {
       setUsername(username);
     })
   }
