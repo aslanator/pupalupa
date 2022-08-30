@@ -5,7 +5,18 @@ import './index.css';
 import App from './App';
 import { Router } from "@solidjs/router";
 import { initializeConfig } from './config';
+import { createEffect, createSignal, Show } from 'solid-js';
 
-initializeConfig();
 
-render(() => <Router><App /></Router>, document.getElementById('root') as HTMLElement);
+
+render(() => {
+  const [loaded, setLoaded] = createSignal(false);
+  createEffect(async () => {
+    await initializeConfig();
+    setLoaded(true);
+  });
+  return <Show when={loaded()} fallback={<div>...loading</div>}>
+          <Router><App /></Router>
+        </Show>
+  
+}, document.getElementById('root') as HTMLElement);

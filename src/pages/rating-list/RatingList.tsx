@@ -13,7 +13,7 @@ export const RatingList: Component = () => {
 
   return <div>
     <For each={ratings()} >
-      { (rating) => <div><Link href={`/rating/${rating.username}`}>{rating.username}</Link></div>}
+      { (rating, index) => <div>{index() + 1}:<Link href={`/rating/${rating.username}`}>{rating.username}</Link></div>}
     </For>
   </div>
 }

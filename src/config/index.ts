@@ -9,8 +9,8 @@ const config: AppConfig = {
   firebase: null,
 }
 
-export const initializeConfig = () => {
-  config.firebase = initializaBackendConfig();
+export const initializeConfig = async () => {
+  config.firebase = await initializaBackendConfig();
   console.log('init')
 }
 

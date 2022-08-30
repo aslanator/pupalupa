@@ -1,6 +1,5 @@
-import type { Component } from 'solid-js';
+import { Component } from 'solid-js';
 
-import logo from './logo.svg';
 import styles from './App.module.css';
 import { useRoutes } from '@solidjs/router';
 import {basicRuleRoutes, anyRuleRoutes} from './routes';
@@ -14,7 +13,7 @@ const App: Component = () => {
 
   return (
     <div class={styles.App}>
-      <div>username: {user().username}</div>
+      <div>username: {user.username}</div>
       <AuthAccess>
         <BasicRuleRoutes />
       </AuthAccess>

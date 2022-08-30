@@ -1,4 +1,4 @@
-import { collection, onSnapshot, FirestoreDataConverter, getDocs, query, orderBy, where, updateDoc, limit, arrayUnion, runTransaction, addDoc } from "firebase/firestore";
+import { collection, onSnapshot, FirestoreDataConverter, getDocs, query, orderBy, where, updateDoc, limit, arrayUnion, runTransaction, addDoc, arrayRemove } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore"
 import { createSignal } from "solid-js";
 
@@ -100,9 +100,9 @@ export const changeRatings = async (username: string, params: ChangeRatingParmas
   }
 }
 
-type addGameToRatingArgs = {username: string, gameIds: string[], box: RatingBox};
+type GameToRatingArgs = {username: string, gameIds: string[], box: RatingBox};
 
-export const addGameToRating = async ({username, gameIds, box}: addGameToRatingArgs) => {
+export const addGameToRating = async ({username, gameIds, box}: GameToRatingArgs) => {
   const doc = (await getDocs(getRatingsCollectionByUsername(username))).docs[0];
   if(doc) {
     updateDoc(doc.ref, box, arrayUnion(...gameIds));
@@ -116,5 +116,12 @@ export const addGameToRating = async ({username, gameIds, box}: addGameToRatingA
       xorosh: [],
       masthave: []
     })
+  }
+}
+
+export const removeGameFromRating = async ({username, gameIds, box}: GameToRatingArgs) => {
+  const doc = (await getDocs(getRatingsCollectionByUsername(username))).docs[0];
+  if(doc) {
+    updateDoc(doc.ref, box, arrayRemove(...gameIds));
   }
 }

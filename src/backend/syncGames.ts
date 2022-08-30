@@ -1,7 +1,7 @@
 import bggXmlApiClient from "bgg-xml-api-client";
 import { getCollections } from "./collection";
 import { addToGames, Game, getGames } from "./game";
-import { addGameToRating as addGamesToRating, getRatingsByUsername } from "./rating";
+import { addGameToRating as addGamesToRating, getRatingsByUsername, removeGameFromRating } from "./rating";
 import { getCurrentUser } from "./user";
 
 const getGamesByCollection =  async (username: string) => {
@@ -22,12 +22,31 @@ const getExistsGamesSet = async () => {
   return existingGamesSet;
 }
 
+const syncGamesByCollection = async (username: string) => {
+  const user = getCurrentUser();
+  const existingGamesSet = await getExistsGamesSet();
+  const games = await getGamesByCollection(username);
+  for(const game of games) {
+    if(existingGamesSet.has(game.objectid) === false) {
+      addToGames(game); //Optimize: make one request instead on n+1
+    }
+  }
+
+
+}
+
+export const syncGamesLibrary = async () => {
+  const collections = await getCollections();
+  for(const collection of collections) {
+    syncGamesByCollection(collection.username);
+  }
+}
+
 const userGamesSet = new Set<string>();
 
-const getUserGamesSet = async () => {
-  const user = getCurrentUser();
+const getUserGamesSet = async (username: string) => {
   if(userGamesSet.size === 0) {
-    const userRatings = await getRatingsByUsername(user().username);
+    const userRatings = await getRatingsByUsername(username);
     if(userRatings) {
       const allUserGames = userRatings.unrated.concat(userRatings.lupa, userRatings.pupa, userRatings.normas, userRatings.xorosh, userRatings.masthave);
       for(const gameId of allUserGames) {
@@ -38,30 +57,31 @@ const getUserGamesSet = async () => {
   return userGamesSet;
 }
 
-const syncGamesByCollection = async (username: string) => {
+export const syncCurrentUserUnratedGames = async () => {
   const user = getCurrentUser();
+  
+  const userGamesSet = await getUserGamesSet(user.username);
   const existingGamesSet = await getExistsGamesSet();
-  const userGamesSet = await getUserGamesSet();
-  console.log({userGamesSet})
-  const games = await getGamesByCollection(username);
+
   const gamesAddToRaging = [];
-  for(const game of games) {
-    if(existingGamesSet.has(game.objectid) === false) {
-      addToGames(game); //Optimize: make one request instead on n+1
-    }
-    if(userGamesSet.has(game.objectid) === false) {
-      gamesAddToRaging.push(game.objectid);
+  for(const game of existingGamesSet) {
+    if(!userGamesSet.has(game)) {
+      gamesAddToRaging.push(game);
     }
   }
-
   if(gamesAddToRaging.length > 0) {
-    addGamesToRating({username: user().username, gameIds: gamesAddToRaging, box: 'unrated' }); //Optimize: make one request instead on n+1
+    addGamesToRating({username: user.username, gameIds: gamesAddToRaging, box: 'unrated' }); 
   }
-}
 
-export const syncGamesLibrary = async () => {
-  const collections = await getCollections();
-  for(const collection of collections) {
-    syncGamesByCollection(collection.username);
+  const gamesRemoveFromRating = [];
+  for(const game of userGamesSet.values()) {
+    if(!existingGamesSet.has(game)) {
+      gamesRemoveFromRating.push(game);
+    }
   }
+  if(gamesRemoveFromRating.length > 0) {
+    removeGameFromRating({username: user.username, gameIds: gamesRemoveFromRating, box: 'unrated' });
+  }
+
+  gamesRemoveFromRating
 }
