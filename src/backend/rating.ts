@@ -7,6 +7,7 @@ const db = getFirestore();
 export type RatingBox = 'unrated' | 'lupa' | 'pupa' | 'normas' | 'xorosh' | 'masthave';
 
 export type Rating = {
+  id: string;
   username: string;
   unrated: string[];
   lupa: string[];
@@ -22,6 +23,7 @@ const tableName = 'rating';
 const converter: FirestoreDataConverter<Rating> = {toFirestore: item => item, fromFirestore: item => {
   const data = item.data();
   return ({
+    id: item.id,
     username: data.username,
     unrated: data.unrated ?? [],
     lupa: data.lupa ?? [],
@@ -42,6 +44,7 @@ export const getRatingDocumentById = (id: string) => {
 
 export const subscribeOnRatingById = (id: string) => {
   const [rating, setRating] = createSignal<Rating>({
+    id: '',
     username: '',
     unrated: [],
     lupa: [],

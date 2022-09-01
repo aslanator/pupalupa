@@ -3,7 +3,7 @@ import { lazy } from "solid-js";
 //Split routes becouse we dont have middlewares :(
 export const basicRuleRoutes = [
   {
-    path: "/rating/:username?",
+    path: "/rating/:userId?",
     component: lazy(() => import("./pages/rating/Rating").then(module => ({ default: module.Rating })))
   },
   {

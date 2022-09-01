@@ -8,12 +8,12 @@ export const Rating: Component = () => {
  const user = getCurrentUser();
  const [synced, setSynced] = createSignal(false);
  const params = useParams();
+ const userId = params.userId ?? user.uid;
 
  createEffect(async () => {
   await syncCurrentUserUnratedGames();
   setSynced(true)
-  console.log({synced: synced()})
  })
 
- return <Show when={synced()} fallback={<div>loading...</div>}><RatingContainer userId={user.uid} viewMode={!!params.username}/></Show>
+ return <Show when={synced()} fallback={<div>loading...</div>}><RatingContainer userId={userId} viewMode={!!params.userId}/></Show>
 };

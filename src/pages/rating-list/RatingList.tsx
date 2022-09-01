@@ -7,13 +7,12 @@ export const RatingList: Component = () => {
   
   createEffect(async () => {
     const ratings = await getRatings();
-    console.log({ratings})
     setRatings(ratings);
   })
 
   return <div>
     <For each={ratings()} >
-      { (rating, index) => <div>{index() + 1}:<Link href={`/rating/${rating.username}`}>{rating.username}</Link></div>}
+      { (rating, index) => <div>{index() + 1}:<Link href={`/rating/${rating.id}`}>{rating.username}</Link></div>}
     </For>
   </div>
 }
