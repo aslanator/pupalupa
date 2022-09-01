@@ -1,6 +1,6 @@
 import { createEffect, createSignal } from "solid-js";
 import { Game, subscribeOnGames } from "./game";
-import { subscribeOnRatingByUserName } from "./rating";
+import { subscribeOnRatingById } from "./rating";
 
 
 type GamesRating = {
@@ -25,8 +25,8 @@ const fillGameRating = ({gameIds, gamesRating, games}: FillGameRatingArgs) => {
   }
 }
 
-export const subscribeOnGamesRating = (username: string) => {
-  const {unsubscribe: unsubscribeFromRating, rating} = subscribeOnRatingByUserName(username);
+export const subscribeOnGamesRating = (id: string) => {
+  const {unsubscribe: unsubscribeFromRating, rating} = subscribeOnRatingById(id);
   const {unsubscribe: unsubscribeFromGames, games} = subscribeOnGames();
   const [gamesRating, setGamesRating] = createSignal<GamesRating>({unrated: [], lupa: [], pupa: [], normas: [], xorosh: [], masthave: []});
   createEffect(() => {

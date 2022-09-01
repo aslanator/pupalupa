@@ -1,8 +1,8 @@
 import bggXmlApiClient from "bgg-xml-api-client";
 import { getCollections } from "./collection";
 import { addToGames, Game, getGames } from "./game";
-import { addGameToRating as addGamesToRating, getRatingsByUsername, removeGameFromRating } from "./rating";
-import { getCurrentUser } from "./user";
+import { addGameToRating as addGamesToRating, getRatingById, removeGameFromRating } from "./rating";
+import { getCurrentUser, User } from "./user";
 
 const getGamesByCollection =  async (username: string) => {
   const { data } = await bggXmlApiClient.get('collection', { username, excludesubtype: 'boardgameexpansion', own: 1});
@@ -44,11 +44,11 @@ export const syncGamesLibrary = async () => {
 
 const userGamesSet = new Set<string>();
 
-const getUserGamesSet = async (username: string) => {
+const getUserGamesSet = async ({uid, username}: User) => {
   if(userGamesSet.size === 0) {
-    const userRatings = await getRatingsByUsername(username);
-    if(userRatings) {
-      const allUserGames = userRatings.unrated.concat(userRatings.lupa, userRatings.pupa, userRatings.normas, userRatings.xorosh, userRatings.masthave);
+    const userRating = await getRatingById(uid);
+    if(userRating) {
+      const allUserGames = userRating.unrated.concat(userRating.lupa, userRating.pupa, userRating.normas, userRating.xorosh, userRating.masthave);
       for(const gameId of allUserGames) {
         userGamesSet.add(gameId);
       }
@@ -60,7 +60,7 @@ const getUserGamesSet = async (username: string) => {
 export const syncCurrentUserUnratedGames = async () => {
   const user = getCurrentUser();
   
-  const userGamesSet = await getUserGamesSet(user.username);
+  const userGamesSet = await getUserGamesSet(user);
   const existingGamesSet = await getExistsGamesSet();
 
   const gamesAddToRaging = [];
@@ -70,7 +70,7 @@ export const syncCurrentUserUnratedGames = async () => {
     }
   }
   if(gamesAddToRaging.length > 0) {
-    addGamesToRating({username: user.username, gameIds: gamesAddToRaging, box: 'unrated' }); 
+    addGamesToRating({id: user.uid, username: user.username, gameIds: gamesAddToRaging, box: 'unrated' }); 
   }
 
   const gamesRemoveFromRating = [];
@@ -80,8 +80,6 @@ export const syncCurrentUserUnratedGames = async () => {
     }
   }
   if(gamesRemoveFromRating.length > 0) {
-    removeGameFromRating({username: user.username, gameIds: gamesRemoveFromRating, box: 'unrated' });
+    removeGameFromRating({id: user.uid, username: user.username, gameIds: gamesRemoveFromRating, box: 'unrated' });
   }
-
-  gamesRemoveFromRating
 }

@@ -8,13 +8,13 @@ import { RatingTitle } from '../../components/RatingTitle/RatingTitle';
 export type DropArgs = {dropped: {id: string, box: RatingBox}, droppedOn: {id: string, box: RatingBox}, position: 'LEFT' | 'RIGHT'};
 
 type RatingContainerProps = {
-  username: string;
+  userId: string;
   viewMode?: boolean;
 }
 
-export const RatingContainer: Component<RatingContainerProps> = ({username, viewMode = false}) => {
+export const RatingContainer: Component<RatingContainerProps> = ({userId, viewMode = false}) => {
 
-  const  { unsubscribe, gamesRating } = subscribeOnGamesRating(username);
+  const  { unsubscribe, gamesRating } = subscribeOnGamesRating(userId);
 
   onCleanup(() => {
     unsubscribe();
@@ -47,7 +47,7 @@ export const RatingContainer: Component<RatingContainerProps> = ({username, view
 
     droppedOnGameIds.splice(droppedOnIndex, 0, dropped.id);
 
-    changeRatings(username, [{box: dropped.box, gameIds: droppedGameIds}, {box: droppedOn.box, gameIds: droppedOnGameIds}]);
+    changeRatings(userId, [{box: dropped.box, gameIds: droppedGameIds}, {box: droppedOn.box, gameIds: droppedOnGameIds}]);
   }
        
   

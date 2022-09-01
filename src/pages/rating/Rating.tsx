@@ -1,6 +1,6 @@
 import { useParams } from '@solidjs/router';
 import { Component, createEffect, createSignal, Show } from 'solid-js';
-import { syncGamesLibrary, syncCurrentUserUnratedGames } from '../../backend/syncGames';
+import { syncCurrentUserUnratedGames } from '../../backend/syncGames';
 import { getCurrentUser } from '../../backend/user';
 import { RatingContainer } from './components/RatingsContainer/RagingContainer';
 
@@ -12,7 +12,8 @@ export const Rating: Component = () => {
  createEffect(async () => {
   await syncCurrentUserUnratedGames();
   setSynced(true)
+  console.log({synced: synced()})
  })
 
- return <Show when={synced} fallback={<div>loading...</div>}><RatingContainer username={user.username} viewMode={!!params.username}/></Show>
+ return <Show when={synced()} fallback={<div>loading...</div>}><RatingContainer userId={user.uid} viewMode={!!params.username}/></Show>
 };

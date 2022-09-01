@@ -1,8 +1,7 @@
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { createEffect, createSignal } from "solid-js";
 
-type User = {
+export type User = {
   uid: string;
   username: string;
   permissions: {'basic': boolean};
@@ -30,7 +29,7 @@ export const initAuth = async () => {
       if (userInfo) {
         user = {
           uid: userInfo.uid,
-          username: userInfo.displayName,
+          username: userInfo.displayName ?? 'My Name Is Giovanni Giorgio',
           permissions: {'basic': true}
         };
 

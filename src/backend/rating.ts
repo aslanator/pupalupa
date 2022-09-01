@@ -1,4 +1,4 @@
-import { collection, onSnapshot, FirestoreDataConverter, getDocs, query, orderBy, where, updateDoc, limit, arrayUnion, runTransaction, addDoc, arrayRemove } from "firebase/firestore";
+import { collection, onSnapshot, FirestoreDataConverter, getDocs, query, orderBy, where, updateDoc, limit, arrayUnion, runTransaction, addDoc, arrayRemove, doc, getDoc, setDoc } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore"
 import { createSignal } from "solid-js";
 
@@ -36,13 +36,13 @@ export const getRatingsCollection = () => {
   return collection(db, tableName).withConverter<Rating>(converter);
 }
 
-export const getRatingsCollectionByUsername = (username: string) => {
-  return query(getRatingsCollection(), where("username", "==", username), limit(1));
+export const getRatingDocumentById = (id: string) => {
+  return doc(getRatingsCollection(), id);
 }
 
-export const subscribeOnRatingByUserName = (username: string) => {
+export const subscribeOnRatingById = (id: string) => {
   const [rating, setRating] = createSignal<Rating>({
-    username,
+    username: '',
     unrated: [],
     lupa: [],
     pupa: [],
@@ -50,12 +50,14 @@ export const subscribeOnRatingByUserName = (username: string) => {
     xorosh: [],
     masthave: []
   });
-  const request = getRatingsCollectionByUsername(username);
-  const unsubscribe = onSnapshot<Rating>(request, (ratings) => {
-    if(ratings.empty) {
-      throw new Error(`Dont find user with name ${username}`);
+  const request = getRatingDocumentById(id);
+  const unsubscribe = onSnapshot<Rating>(request, (rating) => {
+    if(rating.exists()) {
+      setRating(rating.data()!);
     }
-    setRating(ratings.docs[0].data());
+    else {
+      throw new Error(`Dont find rating with id ${id}`);
+    }
   });
 
   return {
@@ -69,29 +71,26 @@ export const getRatings = async () => {
   return ratings.docs.map(rating => rating.data());
 }
 
-export const getRatingsByUsername = async (username: string) => {
-  const request = getRatingsCollectionByUsername(username);
-  const snapshot = await getDocs<Rating>(request);
-  if(snapshot.empty) {
-    return null;
-  }
-  return snapshot.docs[0].data();
+export const getRatingById = async (id: string) => {
+  const doc = getRatingDocumentById(id);
+  const rating = await getDoc<Rating>(doc);
+  return rating.data();
 }
 
 type ChangeRatingParmas = {gameIds: string[], box: RatingBox};
 
-export const changeRatings = async (username: string, params: ChangeRatingParmas[]) => {
+export const changeRatings = async (id: string, params: ChangeRatingParmas[]) => {
   try {
     await runTransaction(db, async transaction => {
       for(const {gameIds, box} of params) {
         const gameIdsSet = new Set(gameIds);
         const uniqGameIds = Array.from(gameIdsSet.values());
-        const doc = (await getDocs(getRatingsCollectionByUsername(username))).docs[0];
-        if(doc) {
-          transaction.update(doc.ref, box, uniqGameIds);
+        const document = (await getDoc(getRatingDocumentById(id)));
+        if(document.exists()) {
+          transaction.update(document.ref, box, uniqGameIds);
         }
         else {
-          throw new Error(`Did't find rating of user - ${username}`)
+          throw new Error(`Did't find rating of user with id - ${id}`)
         }
       }
     })
@@ -100,14 +99,14 @@ export const changeRatings = async (username: string, params: ChangeRatingParmas
   }
 }
 
-type GameToRatingArgs = {username: string, gameIds: string[], box: RatingBox};
+type GameToRatingArgs = {id: string, username: string, gameIds: string[], box: RatingBox};
 
-export const addGameToRating = async ({username, gameIds, box}: GameToRatingArgs) => {
-  const doc = (await getDocs(getRatingsCollectionByUsername(username))).docs[0];
-  if(doc) {
-    updateDoc(doc.ref, box, arrayUnion(...gameIds));
+export const addGameToRating = async ({id, username, gameIds, box}: GameToRatingArgs) => {
+  const document = (await getDoc(getRatingDocumentById(id)));
+  if(document.exists()) {
+    updateDoc(document.ref, box, arrayUnion(...gameIds));
   } else {
-    addDoc(getRatingsCollection(), {
+    setDoc(doc(db, tableName, id), {
       username,
       unrated: gameIds,
       lupa: [],
@@ -119,8 +118,8 @@ export const addGameToRating = async ({username, gameIds, box}: GameToRatingArgs
   }
 }
 
-export const removeGameFromRating = async ({username, gameIds, box}: GameToRatingArgs) => {
-  const doc = (await getDocs(getRatingsCollectionByUsername(username))).docs[0];
+export const removeGameFromRating = async ({id, gameIds, box}: GameToRatingArgs) => {
+  const doc = await getDoc(getRatingDocumentById(id));
   if(doc) {
     updateDoc(doc.ref, box, arrayRemove(...gameIds));
   }
